@@ -81,8 +81,57 @@ const updateInstitutionSetup = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, setup, "Setup details updated successfully"));
 });
 
+const registerAddress = asyncHandler(async (req, res) => {
+    const { universityName, addressLine1, city, pincode, country } = req.body;
+
+    if (!universityName || !addressLine1 || !city || !pincode || !country) {
+        throw new ApiError(400, "All address fields are required");
+    }
+
+    // Combine for Institution model's simple address field
+    const fullAddress = `${addressLine1}, ${city}, ${pincode}, ${country}`;
+
+    // Create or Update Institution (Partial)
+    let institution = await Institution.findOne({ owner: req.user._id });
+
+    if (institution) {
+        institution.name = universityName;
+        institution.address = fullAddress;
+        await institution.save({ validateBeforeSave: false });
+    } else {
+        institution = await Institution.create({
+            name: universityName,
+            address: fullAddress,
+            owner: req.user._id,
+            // Provide placeholder values for required fields that are collected in later steps
+            email: `temp_${Date.now()}@placeholder.com`,
+            domain: `temp_${Date.now()}.com`,
+            logo: "https://via.placeholder.com/200x200.png"
+        });
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, institution, "University address registered successfully")
+    );
+});
+
+const verifyContact = asyncHandler(async (req, res) => {
+    const { email, phone } = req.body;
+
+    if (!email || !phone) {
+        throw new ApiError(400, "Email and phone are required");
+    }
+
+    // Mock verification - in a real app, send OTP
+    return res.status(200).json(
+        new ApiResponse(200, { email, phone, verified: true }, "Contact details verified successfully")
+    );
+});
+
 export {
     createInstitutionSetup,
     getInstitutionSetup,
-    updateInstitutionSetup
+    updateInstitutionSetup,
+    registerAddress,
+    verifyContact
 };

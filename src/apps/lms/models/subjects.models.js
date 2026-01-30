@@ -39,12 +39,12 @@ const subjectSchema = new Schema(
       default: 0
     },
     branch: {
-      type: String, // If subject is specific to a branch
-      trim: true
+      type: Schema.Types.ObjectId,
+      ref: "Branch"
     },
     specialization: {
-      type: String, // If subject is specific to a specialization
-      trim: true
+      type: Schema.Types.ObjectId,
+      ref: "Specialization"
     },
     isElective: {
       type: Boolean,

@@ -8,9 +8,16 @@ const commentSchema = new Schema(
       type: String,
       required: true,
     },
-    postId: {
+    contentId: {
       type: Schema.Types.ObjectId,
-      ref: "Subject",
+      required: true,
+      index: true,
+    },
+    contentType: {
+      type: String,
+      required: true,
+      enum: ["Video", "Assignment", "Exam", "Subject", "Note", "Announcement"],
+      index: true,
     },
     author: {
       type: Schema.Types.ObjectId,

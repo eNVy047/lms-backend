@@ -34,3 +34,4 @@ export * from "./timetable.models.js";
 export * from "./timetableSettings.models.js";
 export * from "./transport.models.js";
 export * from "./address.models.js";
+export * from "./specialization.models.js";

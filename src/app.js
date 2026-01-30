@@ -44,7 +44,7 @@ import lmsRouter from './apps/lms/routes/index.js'
 // set io 
 
 //routes declaration
-app.use("/api/v1/auth", userRouter)
+app.use("/api/v1/user", userRouter)
 app.use("/api/v1/lms", lmsRouter)
 
 

@@ -7,7 +7,7 @@
 ---
 
 ## 🔐 Authentication & User
-**Base Path**: `/auth`
+**Base Path**: `/user`
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
@@ -37,6 +37,8 @@
 | `PATCH` | `/institution/:id` | Update institution details |
 | `DELETE` | `/institution/:id` | Delete institution |
 | `POST` | `/institution-setup` | Save setup details (Certificates, Bank Info) |
+| `POST` | `/institution-setup/register-address` | Register university address (Step 1) |
+| `POST` | `/institution-setup/verify-contact` | Verify contact details (Step 2) |
 | `GET` | `/institution-setup/:institutionId` | Get setup details for an institution |
 | `PATCH` | `/institution-setup/:id` | Update setup details |
 | `POST` | `/branch` | Create a new Branch |
@@ -165,7 +167,7 @@
 ---
 
 ### 🧪 Quick Postman Copy-Paste
-*Copy these suffixes and append to `http://localhost:8000/api/v1/lms`*
+*Copy these suffixes and append to `http://localhost:8000/api/v1`* (Note: Auth routes use `/user`, LMS routes use `/lms`)
 
 ```text
 /institution

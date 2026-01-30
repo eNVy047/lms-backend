@@ -83,7 +83,7 @@ const registerUser = asyncHandler(async (req, res) => {
     subject: "Please verify your email",
     mailgenContent: emailVerificationMailgenContent(
       user.fullName,
-      `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unHashedToken}`
+      `${req.protocol}://${req.get("host")}/api/v1/user/verify-email/${unHashedToken}`
     ),
   });
 
@@ -102,7 +102,7 @@ const registerUser = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         201,
-        { user: createdUser, accessToken, refreshToken },
+        { user, accessToken, refreshToken },
         "User registered and logged in successfully"
       )
     );
@@ -225,7 +225,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       secure: true
     }
 
-    const { accessToken, newRefreshToken } = await generateAccessAndRefereshTokens(user._id)
+    const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndRefreshTokens(user._id)
 
     return res
       .status(200)
@@ -249,7 +249,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 
 
-  const user = await User.findById(req.user?._id)
+  const user = await User.findById(req.user?._id).select("+password")
   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
 
   if (!isPasswordCorrect) {
@@ -397,10 +397,10 @@ const resendEmailVerification = asyncHandler(async (req, res) => {
     email: user?.email,
     subject: "Please verify your email",
     mailgenContent: emailVerificationMailgenContent(
-      user.username,
+      user.fullName,
       `${req.protocol}://${req.get(
         "host"
-      )}/api/v1/users/verify-email/${unHashedToken}`
+      )}/api/v1/user/verify-email/${unHashedToken}`
     ),
   });
   return res
@@ -458,7 +458,7 @@ const forgotPasswordRequest = asyncHandler(async (req, res) => {
     email: user?.email,
     subject: "Password reset request",
     mailgenContent: forgotPasswordMailgenContent(
-      user.username,
+      user.fullName,
       // ! NOTE: Following link should be the link of the frontend page responsible to request password reset
       // ! Frontend will send the below token with the new password in the request body to the backend reset password endpoint
       `${process.env.FORGOT_PASSWORD_REDIRECT_URL}/${unHashedToken}`

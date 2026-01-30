@@ -1,19 +1,18 @@
 import mongoose, { Schema } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
-
-const specializationSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  }
-});
+import { Specialization } from "./specialization.models.js";
 
 const branchSchema = new Schema({
   name: {
     type: String,
     required: true,
   },
-  specializations: [specializationSchema]
+  specializations: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Specialization",
+    }
+  ]
 });
 
 const coursesSchema = new Schema(

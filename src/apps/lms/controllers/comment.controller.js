@@ -4,11 +4,12 @@ import { ApiResponse } from "../../../common/utils/ApiResponse.js";
 import { asyncHandler } from "../../../common/utils/asyncHandler.js";
 
 const addComment = asyncHandler(async (req, res) => {
-    const { content, postId } = req.body;
+    const { content, contentId, contentType } = req.body;
 
     const comment = await Comment.create({
         content,
-        postId,
+        contentId,
+        contentType,
         author: req.user._id
     });
 
@@ -16,8 +17,13 @@ const addComment = asyncHandler(async (req, res) => {
 });
 
 const getComments = asyncHandler(async (req, res) => {
-    const { postId } = req.params;
-    const comments = await Comment.find({ postId }).populate("author", "fullName");
+    const { contentId } = req.params;
+    const { contentType } = req.query; // Optional filter by type
+
+    const filter = { contentId };
+    if (contentType) filter.contentType = contentType;
+
+    const comments = await Comment.find(filter).populate("author", "fullName");
     return res.status(200).json(new ApiResponse(200, comments, "Comments fetched successfully"));
 });
 

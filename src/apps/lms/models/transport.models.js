@@ -83,9 +83,12 @@ const vehicleSchema = new Schema(
             trim: true,
         },
         driverPhone: {
-            type: String,
-            required: true,
-            trim: true,
+            countryCode: { type: String, default: "+91" },
+            number: {
+                type: String,
+                required: true,
+                trim: true,
+            },
         },
         driverLicense: {
             type: String,

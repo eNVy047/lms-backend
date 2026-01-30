@@ -6,7 +6,7 @@ import { ApiResponse } from "../../../common/utils/ApiResponse.js";
 import { asyncHandler } from "../../../common/utils/asyncHandler.js";
 
 const createSubject = asyncHandler(async (req, res) => {
-    const { name, code, course, institution, semester, credits, description } = req.body;
+    const { name, code, course, institution, semester, credits, description, branch, specialization } = req.body;
 
     // Verify dependencies
     const institutionExists = await Institution.findById(institution);
@@ -29,7 +29,10 @@ const createSubject = asyncHandler(async (req, res) => {
         institution,
         semester,
         credits,
-        description
+        description,
+        branch,
+        specialization,
+        createdBy: req.user._id
     });
 
     return res
@@ -38,15 +41,19 @@ const createSubject = asyncHandler(async (req, res) => {
 });
 
 const getAllSubjects = asyncHandler(async (req, res) => {
-    const { courseId, institutionId, semester } = req.query;
+    const { courseId, institutionId, semester, branchId, specializationId } = req.query;
     const filter = {};
     if (courseId) filter.course = courseId;
     if (institutionId) filter.institution = institutionId;
     if (semester) filter.semester = semester;
+    if (branchId) filter.branch = branchId;
+    if (specializationId) filter.specialization = specializationId;
 
     const subjects = await Subject.find(filter)
         .populate("course", "name")
-        .populate("institution", "name");
+        .populate("institution", "name")
+        .populate("branch", "name")
+        .populate("specialization", "name");
 
     return res
         .status(200)
@@ -57,7 +64,9 @@ const getSubjectById = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const subject = await Subject.findById(id)
         .populate("course", "name")
-        .populate("institution", "name");
+        .populate("institution", "name")
+        .populate("branch", "name")
+        .populate("specialization", "name");
 
     if (!subject) {
         throw new ApiError(404, "Subject not found");

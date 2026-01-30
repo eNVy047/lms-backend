@@ -2,11 +2,15 @@ import { Router } from "express";
 import {
     createInstitutionSetup,
     getInstitutionSetup,
-    updateInstitutionSetup
+    updateInstitutionSetup,
+    registerAddress,
+    verifyContact
 } from "../controllers/institutionSetup.controller.js";
 import {
     createInstitutionSetupValidator,
-    updateInstitutionSetupValidator
+    updateInstitutionSetupValidator,
+    registerAddressValidator,
+    verifyContactValidator
 } from "../validators/institutionSetup.validators.js";
 import { verifyJWT } from "../../../common/middlewares/auth.middleware.js";
 import { validate } from "../../../common/validators/validate.js";
@@ -17,6 +21,12 @@ router.use(verifyJWT);
 
 router.route("/")
     .post(createInstitutionSetupValidator(), validate, createInstitutionSetup);
+
+router.route("/register-address")
+    .post(registerAddressValidator(), validate, registerAddress);
+
+router.route("/verify-contact")
+    .post(verifyContactValidator(), validate, verifyContact);
 
 router.route("/:institutionId")
     .get(getInstitutionSetup);

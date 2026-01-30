@@ -14,7 +14,7 @@ router.use(verifyJWT);
 router.route("/")
     .post(createCommentValidator(), validate, addComment);
 
-router.route("/post/:postId")
+router.route("/:contentId")
     .get(getComments);
 
 export default router;

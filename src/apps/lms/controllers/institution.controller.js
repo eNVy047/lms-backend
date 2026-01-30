@@ -53,12 +53,6 @@ const createInstitution = asyncHandler(async (req, res) => {
         $set: { role: UserRolesEnum.ADMIN }
     });
 
-    // 2. Create Default Branch (Main Campus)
-    await Branch.create({
-        name: "Main Campus",
-        owner: institution._id
-    });
-
     return res
         .status(201)
         .json(new ApiResponse(201, institution, "Institution created successfully"));

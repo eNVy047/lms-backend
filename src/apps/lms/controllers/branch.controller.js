@@ -5,13 +5,16 @@ import { ApiResponse } from "../../../common/utils/ApiResponse.js";
 import { asyncHandler } from "../../../common/utils/asyncHandler.js";
 
 const createBranch = asyncHandler(async (req, res) => {
-    const { name, owner } = req.body;
+    const { name, description, branchHead, course, owner } = req.body;
 
     const institutionExists = await Institution.findById(owner);
     if (!institutionExists) throw new ApiError(404, "Owner (Institution) not found");
 
     const branch = await Branch.create({
         name,
+        description,
+        branchHead,
+        course,
         owner,
     });
 

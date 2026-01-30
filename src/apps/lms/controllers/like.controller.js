@@ -4,12 +4,10 @@ import { ApiResponse } from "../../../common/utils/ApiResponse.js";
 import { asyncHandler } from "../../../common/utils/asyncHandler.js";
 
 const toggleLike = asyncHandler(async (req, res) => {
-    const { postId, commentId } = req.body;
+    const { contentId, contentType } = req.body;
     const userId = req.user._id;
 
-    const query = { likedBy: userId };
-    if (postId) query.postId = postId;
-    if (commentId) query.commentId = commentId;
+    const query = { contentId, contentType, likedBy: userId };
 
     const existingLike = await SocialLike.findOne(query);
 
@@ -17,7 +15,7 @@ const toggleLike = asyncHandler(async (req, res) => {
         await SocialLike.findByIdAndDelete(existingLike._id);
         return res.status(200).json(new ApiResponse(200, {}, "Unliked successfully"));
     } else {
-        await SocialLike.create({ ...query });
+        await SocialLike.create(query);
         return res.status(201).json(new ApiResponse(201, {}, "Liked successfully"));
     }
 });

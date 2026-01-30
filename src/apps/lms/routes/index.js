@@ -25,6 +25,7 @@ import libraryRoutes from "./library.routes.js";
 import transportRoutes from "./transport.routes.js";
 import scholarshipRoutes from "./scholarship.routes.js";
 import payrollRoutes from "./payroll.routes.js";
+import specializationRoutes from "./specialization.routes.js";
 
 const router = Router();
 
@@ -33,6 +34,7 @@ router.use("/institution", institutionRoutes);
 router.use("/institution-setup", institutionSetupRoutes);
 router.use("/student", studentRoutes);
 router.use("/teacher", teacherRoutes);
+router.use("/specialization", specializationRoutes);
 
 // Academic
 router.use("/courses", coursesRoutes);

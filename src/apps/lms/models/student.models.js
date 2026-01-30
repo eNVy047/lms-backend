@@ -37,13 +37,13 @@ const studentSchema = new Schema(
             required: true
         },
         branch: {
-            type: String, // e.g. "CSE"
-            required: true,
-            trim: true
+            type: Schema.Types.ObjectId,
+            ref: "Branch",
+            required: true
         },
         specialization: {
-            type: String, // e.g. "AI/ML"
-            trim: true
+            type: Schema.Types.ObjectId,
+            ref: "Specialization"
         },
         currentSemester: {
             type: Number,
@@ -108,8 +108,11 @@ const studentSchema = new Schema(
             trim: true
         },
         guardianPhone: {
-            type: String,
-            trim: true
+            countryCode: { type: String, default: "+91" },
+            number: {
+                type: String,
+                trim: true,
+            },
         },
 
         // Hostel Details

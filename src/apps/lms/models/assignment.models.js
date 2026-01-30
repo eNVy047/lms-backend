@@ -33,7 +33,15 @@ const assignmentSchema = new Schema(
     },
     author: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Teacher",
+    },
+    subject: {
+      type: Schema.Types.ObjectId,
+      ref: "Subject",
+    },
+    section: {
+      type: Schema.Types.ObjectId,
+      ref: "Section",
     },
   },
   { timestamps: true }

@@ -4,19 +4,21 @@ import { Comment } from "./comment.models.js";
 
 const likeSchema = new Schema(
   {
-    postId: {
+    contentId: {
       type: Schema.Types.ObjectId,
-      ref: "Video",
-      default: null,
+      required: true,
+      index: true,
     },
-    commentId: {
-      type: Schema.Types.ObjectId,
-      ref: "Comment",
-      default: null,
+    contentType: {
+      type: String,
+      required: true,
+      enum: ["Video", "Assignment", "Exam", "Comment", "Note", "Announcement", "Subject"],
+      index: true,
     },
     likedBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   { timestamps: true }

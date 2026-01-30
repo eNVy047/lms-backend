@@ -22,9 +22,14 @@ const createInstitutionValidator = () => {
             .notEmpty()
             .withMessage("Domain is required"),
         body("phoneNumber")
-            .trim()
             .notEmpty()
-            .withMessage("Phone number is required"),
+            .withMessage("Phone number is required")
+            .custom((value) => {
+                if (typeof value !== "object" || !value.countryCode || !value.number) {
+                    throw new Error("Phone number must include countryCode and number");
+                }
+                return true;
+            }),
         body("address")
             .trim()
             .notEmpty()

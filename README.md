@@ -22,7 +22,7 @@ http://localhost:8000/api/v1/user/register
   "password": "StrongPassword@123",
   "address": "123 Main Street, New Delhi, India",
   "phone": {
-    "code": "+91",
+    "countryCode": "+91",
     "number": "9876543210"
   }
 }
@@ -144,7 +144,7 @@ http://localhost:8000/api/v1/lms/institution
   "affiliationNumber": "CBSE123456",
   "email": "admin@dps.com",
   "domain": "dps.edu.in",
-  "phoneNumber": "9876543210",
+  "phoneNumber": { "countryCode": "+91", "number": "9876543210" },
   "address": "Mathura Road, New Delhi",
   "institutionType": "School",
   "logo": "https://cloudinary.com/url-to-logo.png"
@@ -180,7 +180,7 @@ http://localhost:8000/api/v1/lms/institution-setup/verify-contact
 ```json
 {
     "email": "admin@univ.edu",
-    "phone": "9999999999"
+    "phone": { "countryCode": "+91", "number": "9999999999" }
 }
 ```
 
@@ -194,10 +194,13 @@ http://localhost:8000/api/v1/lms/branch
 
 ```json
 {
-  "name": "Science Block",
-  "institution": "65b8c9d8123abc456def7890",
-  "address": "Wing A, North Campus",
-  "contactNumber": "011-23456789"
+  "name": "Computer Science & Engineering",
+  "description": "Department of CSE focusing on software and AI.",
+  "branchHead": {
+    "name": "Prof. Alan Turing",
+    "phone": { "countryCode": "+91", "number": "9123456789" }
+  },
+  "owner": "65b8c9d8123abc456def7890"
 }
 ```
 
@@ -224,7 +227,7 @@ http://localhost:8000/api/v1/lms/student
   "currentSemester": 1,
   "section": "A",
   "guardianName": "Jane Doe",
-  "guardianPhone": "9876543211"
+  "guardianPhone": { "countryCode": "+91", "number": "9876543211" }
 }
 ```
 
@@ -927,11 +930,11 @@ http://localhost:8000/api/v1/lms/like
 ---
 
 ### 🧪 Quick Postman Copy-Paste
-*Append these to `http://localhost:8000/api/v1/lms`*
+*Copy these suffixes and append to `http://localhost:8000/api/v1`* (Note: Auth/User routes use `/user`, LMS routes use `/lms`)
 
 ```text
-/auth/register (POST)
-/auth/login (POST)
+/user/register (POST)
+/user/login (POST)
 /institution
 /institution-setup
 /student

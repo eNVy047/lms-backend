@@ -54,4 +54,34 @@ const updateInstitutionSetupValidator = () => {
     ];
 };
 
-export { createInstitutionSetupValidator, updateInstitutionSetupValidator };
+const registerAddressValidator = () => {
+    return [
+        body("universityName").trim().notEmpty().withMessage("University name is required"),
+        body("addressLine1").trim().notEmpty().withMessage("Address line 1 is required"),
+        body("city").trim().notEmpty().withMessage("City is required"),
+        body("pincode").trim().notEmpty().withMessage("Pincode is required"),
+        body("country").trim().notEmpty().withMessage("Country is required"),
+    ];
+};
+
+const verifyContactValidator = () => {
+    return [
+        body("email").trim().isEmail().withMessage("Valid email is required"),
+        body("phone")
+            .notEmpty()
+            .withMessage("Phone is required")
+            .custom((value) => {
+                if (typeof value !== "object" || !value.countryCode || !value.number) {
+                    throw new Error("Phone must include countryCode and number");
+                }
+                return true;
+            }),
+    ];
+};
+
+export {
+    createInstitutionSetupValidator,
+    updateInstitutionSetupValidator,
+    registerAddressValidator,
+    verifyContactValidator
+};

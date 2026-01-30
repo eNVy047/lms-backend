@@ -25,10 +25,13 @@ const createStudentValidator = () => {
         body("branch")
             .trim()
             .notEmpty()
-            .withMessage("Branch is required"),
+            .withMessage("Branch is required")
+            .isMongoId()
+            .withMessage("Invalid Branch ID"),
         body("specialization")
             .optional()
-            .trim(),
+            .isMongoId()
+            .withMessage("Invalid Specialization ID"),
         body("batch")
             .trim()
             .notEmpty()
@@ -62,6 +65,18 @@ const createStudentValidator = () => {
             .if(body("additionalDocuments").exists())
             .notEmpty()
             .withMessage("Document URL is required"),
+        // Guardian Details
+        body("guardianName")
+            .optional()
+            .trim(),
+        body("guardianPhone")
+            .optional()
+            .custom((value) => {
+                if (typeof value !== "object" || !value.countryCode || !value.number) {
+                    throw new Error("Guardian phone must include countryCode and number");
+                }
+                return true;
+            }),
     ];
 };
 

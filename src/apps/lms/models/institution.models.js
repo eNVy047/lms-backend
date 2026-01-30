@@ -34,10 +34,13 @@ const institutionSchema = new Schema(
             index: true
         },
         phoneNumber: {
-            type: String,
-            trim: true,
-            unique: true,
-            index: true
+            countryCode: { type: String, default: "+91" },
+            number: {
+                type: String,
+                trim: true,
+                unique: true,
+                index: true
+            },
         },
         address: {
             type: String,

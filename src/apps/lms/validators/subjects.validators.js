@@ -28,6 +28,14 @@ const createSubjectValidator = () => {
             .notEmpty()
             .isNumeric()
             .withMessage("Credits must be a number"),
+        body("branch")
+            .optional()
+            .isMongoId()
+            .withMessage("Invalid Branch ID"),
+        body("specialization")
+            .optional()
+            .isMongoId()
+            .withMessage("Invalid Specialization ID"),
     ];
 };
 

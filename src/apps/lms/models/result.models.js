@@ -8,13 +8,25 @@ const resultSchema = new Schema(
       ref: "Student",
       required: true
     },
-    quizz: {
+    institution: {
       type: Schema.Types.ObjectId,
-      ref: "Quizz"
+      ref: "Institution",
+      required: true
     },
-    assignment: {
+    contentId: {
       type: Schema.Types.ObjectId,
-      ref: "Assignment"
+      required: true,
+    },
+    contentType: {
+      type: String,
+      required: true,
+      enum: ["Quizz", "Assignment", "Exam", "Other"],
+    },
+    resultType: {
+      type: String,
+      required: true,
+      enum: ["MID-TERM", "FINAL", "QUICK-TEST", "INTERNAL", "EXTERNAL", "OTHERS"],
+      default: "INTERNAL"
     },
     score: {
       type: Number,
@@ -27,10 +39,20 @@ const resultSchema = new Schema(
     percentage: {
       type: Number
     },
+    grade: {
+      type: String,
+    },
     status: {
       type: String,
-      enum: ["PASS", "FAIL", "PENDING"],
+      enum: ["PASS", "FAIL", "ABSENT", "PENDING"],
       default: "PENDING"
+    },
+    publishedAt: {
+      type: Date
+    },
+    isPublished: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }

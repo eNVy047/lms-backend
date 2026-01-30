@@ -2,15 +2,18 @@ import { body } from "express-validator";
 
 const toggleLikeValidator = () => {
     return [
-        body().custom((value, { req }) => {
-            const { videoId, commentId } = req.body;
-            if ((!videoId && !commentId) || (videoId && commentId)) {
-                throw new Error("Exactly one of videoId or commentId must be provided");
-            }
-            return true;
-        }),
-        body("videoId").optional().isMongoId().withMessage("Invalid Video ID"),
-        body("commentId").optional().isMongoId().withMessage("Invalid Comment ID"),
+        body("contentId")
+            .trim()
+            .notEmpty()
+            .withMessage("Content ID is required")
+            .isMongoId()
+            .withMessage("Invalid Content ID"),
+        body("contentType")
+            .trim()
+            .notEmpty()
+            .withMessage("Content type is required")
+            .isIn(["Video", "Assignment", "Exam", "Comment", "Note", "Announcement", "Subject"])
+            .withMessage("Invalid content type"),
     ];
 };
 

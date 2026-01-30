@@ -59,7 +59,7 @@ const createStudent = asyncHandler(async (req, res) => {
         }
 
         const existedUser = await User.findOne({
-            $or: [{ email }, { "phone.number": guardianPhone }] // Check unique constraints
+            $or: [{ email }, { "phone.number": guardianPhone?.number || `ST${enrollmentNumber}` }] // Check unique constraints
         });
 
         if (existedUser) {
@@ -71,7 +71,7 @@ const createStudent = asyncHandler(async (req, res) => {
             email,
             password,
             role: "STUDENT",
-            phone: { number: guardianPhone || `ST${enrollmentNumber}` }, // Fallback logic
+            phone: guardianPhone && guardianPhone.number ? guardianPhone : { number: `ST${enrollmentNumber}` }, // Fallback logic
             institution: institution // If User model has institution link (good practice for multi-tenant)
         });
         targetUserId = newUser._id;
@@ -235,7 +235,9 @@ const updateStudentProfile = asyncHandler(async (req, res) => {
     )
         .populate("institution")
         .populate("user")
-        .populate("course");
+        .populate("course")
+        .populate("branch", "name")
+        .populate("specialization", "name");
 
     if (!student) {
         throw new ApiError(404, "Student profile not found");
@@ -254,7 +256,9 @@ const getAllStudents = asyncHandler(async (req, res) => {
     // Using aggregate paginate logic if needed, or simple find
     const students = await Student.find(filter)
         .populate("user", "fullName email")
-        .populate("course", "name");
+        .populate("course", "name")
+        .populate("branch", "name")
+        .populate("specialization", "name");
 
     return res.status(200).json(new ApiResponse(200, students, "Students fetched successfully"));
 })
