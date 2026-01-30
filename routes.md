@@ -52,11 +52,21 @@
 | `GET` | `/student/profile` | Get **current** logged-in student profile |
 | `GET` | `/student/:id` | Get student profile by ID |
 | `PATCH` | `/student/:id` | Update student profile |
+| `DELETE` | `/student/:id` | Delete student (Admin) |
+| `POST` | `/student/register-course` | Register for valid course |
+| `GET` | `/student/:studentId/attendance` | View attendance |
+| `GET` | `/student/:studentId/marks` | View academic results |
+| `POST` | `/student/:studentId/pay-fees` | Pay fees |
 | `POST` | `/teacher` | Create Teacher Profile |
 | `GET` | `/teacher` | Get all teachers |
 | `GET` | `/teacher/profile` | Get **current** logged-in teacher profile |
 | `GET` | `/teacher/:id` | Get teacher profile by ID |
 | `PATCH` | `/teacher/:id` | Update teacher profile |
+| `DELETE` | `/teacher/:id` | Delete teacher (Admin) |
+| `GET` | `/teacher/assigned-courses` | Get assigned courses/subjects |
+| `GET` | `/teacher/assigned-students` | Get students for assigned course |
+| `POST` | `/teacher/attendance` | Bulk upload attendance |
+| `POST` | `/teacher/marks` | Bulk upload marks |
 
 ### 📚 Academic Structure
 
@@ -74,7 +84,50 @@
 | `GET` | `/enrolled-courses/user/:userId?` | Get enrollments for user (defaults to self) |
 | `DELETE` | `/enrolled-courses/:id` | Remove enrollment |
 
-### 📝 Content & Assessment
+### �️ Admin & Reporting
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/admin/assign-faculty` | Assign faculty to course/subject |
+| `GET` | `/admin/reports?type=...` | Generate reports (PERF, ENROLL, FEES, ATTENDANCE) |
+
+### 📊 Exams & Results
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/exams` | Create Exam |
+| `GET` | `/exams` | List Exams |
+| `PATCH` | `/exams/:id/publish` | Publish Exam Results |
+| `POST` | `/academic-records` | Enter Marks (Teacher) |
+| `GET` | `/academic-records/student/:studentId` | View Results |
+| `PATCH` | `/academic-records/:id` | Update Marks (Re-evaluation) |
+
+### 📅 Attendance & Operations
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/attendance/mark` | Mark Attendance (Bulk) |
+| `GET` | `/attendance/report` | Attendance Reports |
+| `POST` | `/transport/routes` | Create Transport Route |
+| `GET` | `/transport/routes` | List Transport Routes |
+| `POST` | `/transport/vehicles` | Add Vehicle |
+| `POST` | `/library/assets` | Add Library Asset |
+| `GET` | `/library/assets` | Search Library Inventory |
+| `POST` | `/library/issue` | Issue Book |
+| `POST` | `/library/return/:transactionId` | Return Book |
+| `POST` | `/payroll/generate` | Generate Payroll (Admin) |
+| `GET` | `/payroll` | View Payroll (Admin/Employee) |
+
+### 🎓 Scholarships
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/scholarship/schemes` | Create Scholarship Scheme |
+| `GET` | `/scholarship/schemes` | List Schemes |
+| `POST` | `/scholarship/apply` | Apply for Scholarship |
+| `PATCH` | `/scholarship/application/:id/process` | Approve/Reject Application |
+
+### �📝 Content & Assessment
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
@@ -104,6 +157,10 @@
 | `POST` | `/like` | Toggle like on post/comment |
 | `POST` | `/fees` | Create Fee record |
 | `GET` | `/fees` | Get fee records |
+| `GET` | `/fees/statistics` | Get fee statistics |
+| `GET` | `/fees/student/:studentId` | Get fees for specific student |
+| `POST` | `/fees/:feeId/pay` | Process Full Payment |
+| `POST` | `/fees/:feeId/installment/:installmentNumber/pay` | Process Installment Payment |
 
 ---
 
@@ -115,8 +172,10 @@
 /institution-setup
 /student
 /student/profile
+/student/register-course (POST)
 /teacher
 /teacher/profile
+/teacher/assigned-courses
 /courses
 /subjects
 /enrolled-courses
@@ -129,4 +188,17 @@
 /announcement
 /event
 /fees
+/fees/statistics
+/fees/student/:studentId
+/fees/:feeId/pay (POST)
+/admin/assign-faculty
+/admin/reports
+/exams
+/academic-records
+/attendance/mark
+/library/assets
+/library/issue
+/transport/routes
+/scholarship/schemes
+/payroll/generate
 ```

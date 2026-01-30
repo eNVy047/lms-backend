@@ -37,6 +37,32 @@ const subjectSchema = new Schema(
       type: Number,
       required: true,
       default: 0
+    },
+    branch: {
+      type: String, // If subject is specific to a branch
+      trim: true
+    },
+    specialization: {
+      type: String, // If subject is specific to a specialization
+      trim: true
+    },
+    isElective: {
+      type: Boolean,
+      default: false
+    },
+    // Optional default teacher mapping (Head of Subject / Coordinator)
+    teacher: {
+      type: Schema.Types.ObjectId,
+      ref: "Teacher"
+    },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
+    updatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User"
     }
   },
   { timestamps: true }

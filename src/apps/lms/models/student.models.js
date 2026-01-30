@@ -30,14 +30,19 @@ const studentSchema = new Schema(
             required: true,
             trim: true
         },
-        department: {
-            type: String, // Can be ref if Department model exists
+        // Academic Mapping
+        course: {
+            type: Schema.Types.ObjectId,
+            ref: "Courses",
+            required: true
+        },
+        branch: {
+            type: String, // e.g. "CSE"
             required: true,
             trim: true
         },
-        batch: {
-            type: String, // e.g., "2023-2027"
-            required: true,
+        specialization: {
+            type: String, // e.g. "AI/ML"
             trim: true
         },
         currentSemester: {
@@ -49,12 +54,85 @@ const studentSchema = new Schema(
             type: String,
             trim: true
         },
+        batch: {
+            type: String, // e.g., "2023-2027"
+            required: true,
+            trim: true
+        },
+
+        // Personal Attributes & IDs
+        abcId: {
+            type: String,
+            trim: true
+        },
+        aadhaarNumber: {
+            type: String,
+            trim: true
+        },
+        panNumber: {
+            type: String,
+            trim: true
+        },
+
+        // Documents
+        aadhaarDocument: {
+            type: String, // URL
+            trim: true
+        },
+        panDocument: {
+            type: String, // URL
+            trim: true
+        },
+        tenthMarksheet: {
+            type: String, // URL
+            trim: true
+        },
+        twelfthMarksheet: {
+            type: String, // URL
+            trim: true
+        },
+        additionalDocuments: [
+            {
+                name: { type: String, required: true },
+                url: { type: String, required: true }
+            }
+        ],
+
+        // Other existing fields
+        department: {
+            type: String,
+            trim: true
+        },
         guardianName: {
             type: String,
             trim: true
         },
         guardianPhone: {
             type: String,
+            trim: true
+        },
+
+        // Hostel Details
+        isHosteler: {
+            type: Boolean,
+            default: false
+        },
+        hostelRoomNumber: {
+            type: String,
+            trim: true
+        },
+
+        // Transport Details
+        isTransportUser: {
+            type: Boolean,
+            default: false
+        },
+        transportRoute: {
+            type: Schema.Types.ObjectId,
+            ref: "TransportRoute"
+        },
+        transportStop: {
+            type: String, // Name of the stop from the route
             trim: true
         },
         isVerified: {

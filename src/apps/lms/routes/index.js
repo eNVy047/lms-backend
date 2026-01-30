@@ -17,6 +17,14 @@ import eventRoutes from "./event.routes.js";
 import commentRoutes from "./comment.routes.js";
 import likeRoutes from "./like.routes.js";
 import feesRoutes from "./fees.routes.js";
+import adminRoutes from "./admin.routes.js";
+import examRoutes from "./exam.routes.js";
+import academicRecordRoutes from "./academicRecord.routes.js";
+import attendanceRoutes from "./attendance.routes.js";
+import libraryRoutes from "./library.routes.js";
+import transportRoutes from "./transport.routes.js";
+import scholarshipRoutes from "./scholarship.routes.js";
+import payrollRoutes from "./payroll.routes.js";
 
 const router = Router();
 
@@ -45,5 +53,15 @@ router.use("/event", eventRoutes);
 router.use("/comment", commentRoutes);
 router.use("/like", likeRoutes);
 router.use("/fees", feesRoutes);
+
+// New Modules
+router.use("/admin", adminRoutes);
+router.use("/exams", examRoutes);
+router.use("/academic-records", academicRecordRoutes);
+router.use("/attendance", attendanceRoutes);
+router.use("/library", libraryRoutes);
+router.use("/transport", transportRoutes);
+router.use("/scholarship", scholarshipRoutes);
+router.use("/payroll", payrollRoutes);
 
 export default router;

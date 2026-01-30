@@ -5,7 +5,7 @@ import { ApiResponse } from "../../../common/utils/ApiResponse.js";
 import { asyncHandler } from "../../../common/utils/asyncHandler.js";
 
 const createCourse = asyncHandler(async (req, res) => {
-    const { name, institution } = req.body;
+    const { name, institution, branches } = req.body;
 
     // Verify institution exists
     const institutionExists = await Institution.findById(institution);
@@ -16,6 +16,8 @@ const createCourse = asyncHandler(async (req, res) => {
     const course = await Courses.create({
         name,
         institution,
+        branches,
+        createdBy: req.user?._id,
     });
 
     return res
@@ -27,7 +29,9 @@ const getAllCourses = asyncHandler(async (req, res) => {
     const { institutionId } = req.query;
     const filter = institutionId ? { institution: institutionId } : {};
 
-    const courses = await Courses.find(filter).populate("institution", "name");
+    const courses = await Courses.find(filter)
+        .populate("institution", "name")
+        .populate("createdBy", "fullName email");
 
     return res
         .status(200)
@@ -36,7 +40,10 @@ const getAllCourses = asyncHandler(async (req, res) => {
 
 const getCourseById = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const course = await Courses.findById(id).populate("institution", "name");
+    const course = await Courses.findById(id)
+        .populate("institution", "name")
+        .populate("createdBy", "fullName email")
+        .populate("updatedBy", "fullName email");
 
     if (!course) {
         throw new ApiError(404, "Course not found");
@@ -49,13 +56,22 @@ const getCourseById = asyncHandler(async (req, res) => {
 
 const updateCourse = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, branches } = req.body;
 
     const course = await Courses.findByIdAndUpdate(
         id,
-        { $set: { name } },
-        { new: true }
-    );
+        {
+            $set: {
+                name,
+                branches,
+                updatedBy: req.user?._id
+            }
+        },
+        { new: true, runValidators: true }
+    )
+        .populate("institution", "name")
+        .populate("createdBy", "fullName email")
+        .populate("updatedBy", "fullName email");
 
     if (!course) {
         throw new ApiError(404, "Course not found");

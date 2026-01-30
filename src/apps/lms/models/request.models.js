@@ -1,8 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import { User } from "../../../common/models/user.models.js";
 import { Address } from "./address.models.js";
-import { Product } from "./product.models.js";
-import { Coupon } from "./coupon.models.js";
+
 import {
   AvailableOrderStatuses,
   AvailablePaymentProviders,
@@ -21,32 +20,16 @@ const orderSchema = new Schema(
       type: Number,
       required: true,
     },
-    coupon: {
-      type: Schema.Types.ObjectId,
-      ref: "Coupon",
-      default: null,
-    },
+    // Simplified Order Items (Generic)
     customer: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    items: {
-      type: [
-        {
-          productId: {
-            type: Schema.Types.ObjectId,
-            ref: "Product",
-          },
-          quantity: {
-            type: Number,
-            required: true,
-            min: [1, "Quantity can not be less then 1."],
-            default: 1,
-          },
-        },
-      ],
-      default: [],
-    },
+    items: [{
+      name: String,
+      quantity: { type: Number, default: 1 },
+      price: Number
+    }],
     address: {
       addressLine1: {
         required: true,

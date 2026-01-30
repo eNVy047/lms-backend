@@ -16,6 +16,14 @@ import * as eventController from "./event.controller.js";
 import * as commentController from "./comment.controller.js";
 import * as likeController from "./like.controller.js";
 import * as feesController from "./fees.controller.js";
+import * as adminController from "./admin.controller.js";
+import * as examController from "./exam.controller.js";
+import * as academicRecordController from "./academicRecord.controller.js";
+import * as attendanceController from "./attendance.controller.js";
+import * as libraryController from "./library.controller.js";
+import * as transportController from "./transport.controller.js";
+import * as scholarshipController from "./scholarship.controller.js";
+import * as payrollController from "./payroll.controller.js";
 
 export {
     institutionController,
@@ -35,5 +43,13 @@ export {
     eventController,
     commentController,
     likeController,
-    feesController
+    feesController,
+    adminController,
+    examController,
+    academicRecordController,
+    attendanceController,
+    libraryController,
+    transportController,
+    scholarshipController,
+    payrollController
 };

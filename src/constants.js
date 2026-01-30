@@ -91,3 +91,14 @@ export const AvailableApps = [
 
 
 
+
+/**
+ * @type {{ PENDING: "PENDING"; CANCELLED: "CANCELLED"; DELIVERED: "DELIVERED" } as const}
+ */
+export const OrderStatusEnum = {
+  PENDING: "PENDING",
+  CANCELLED: "CANCELLED",
+  DELIVERED: "DELIVERED",
+};
+
+export const AvailableOrderStatuses = Object.values(OrderStatusEnum);
