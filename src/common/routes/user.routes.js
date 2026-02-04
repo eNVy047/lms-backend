@@ -1,7 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
-import { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, allInstalledApps, verifyEmail, forgotPasswordRequest, resetForgottenPassword, resendEmailVerification,  handleSocialLogin, uninstallApp, installApp} from '../controllers/user.controller.js'
-import {upload} from "../middlewares/multer.middleware.js"
+import { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, allInstalledApps, verifyEmail, forgotPasswordRequest, resetForgottenPassword, resendEmailVerification, handleSocialLogin, uninstallApp, installApp, verifyPhoneOTP, resendPhoneOTP } from '../controllers/user.controller.js'
+import { upload } from "../middlewares/multer.middleware.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { validate } from "../validators/validate.js";
 import {
@@ -34,7 +34,7 @@ router
 
 
 /// secured routesss
-router.route("/logout").post(verifyJWT,  logoutUser)
+router.route("/logout").post(verifyJWT, logoutUser)
 router
   .route("/change-password")
   .post(
@@ -49,10 +49,13 @@ router.route("/update-account").patch(verifyJWT, updateAccountDetails)
 router.route("/avatar").patch(verifyJWT, upload.single("avatar"), updateUserAvatar)
 router.route("/installed-apps").get(verifyJWT, allInstalledApps);
 router.route("/install-app").post(verifyJWT, installApp)
-router.route("/uninstall-app").delete(verifyJWT, uninstallApp)
+router.route("/uninstall-app").delete(verifyJWT, uninstallApp);
 router
   .route("/resend-email-verification")
   .post(verifyJWT, resendEmailVerification);
+
+router.route("/verify-otp").post(verifyJWT, verifyPhoneOTP);
+router.route("/resend-otp").post(verifyJWT, resendPhoneOTP);
 
 // SSO routes
 router.route("/google").get(

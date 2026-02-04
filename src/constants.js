@@ -42,7 +42,8 @@ export const UserLoginType = {
 
 export const AvailableSocialLogins = Object.values(UserLoginType);
 
-export const USER_TEMPORARY_TOKEN_EXPIRY = 20 * 60 * 1000; // 20 minutes
+export const USER_TEMPORARY_TOKEN_EXPIRY = 10 * 60 * 1000; // 10 minutes
+export const OTP_EXPIRY = 10 * 60 * 1000; // 10 minutes
 
 
 export const DB_NAME = "SAAS"

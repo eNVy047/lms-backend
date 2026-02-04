@@ -1,55 +1,47 @@
 import Mailgen from "mailgen";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import logger from "../logger/winston.logger.js";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
  *
  * @param {{email: string; subject: string; mailgenContent: Mailgen.Content; }} options
  */
 const sendEmail = async (options) => {
-  // Initialize mailgen instance with default theme and brand configuration
+  // Initialize mailgen instance with a professional theme
   const mailGenerator = new Mailgen({
     theme: "default",
     product: {
-      name: "SAAS",
-      link: "https://zoho-clone.com",
+      name: "LMS ERP",
+      link: "https://lms-erp.com",
+      // logo: "https://mailgen.js/img/logo.png", // You can add a logo here
     },
   });
 
-  // For more info on how mailgen content work visit https://github.com/eladnava/mailgen#readme
-  // Generate the plaintext version of the e-mail (for clients that do not support HTML)
+  // Generate the plaintext version of the e-mail
   const emailTextual = mailGenerator.generatePlaintext(options.mailgenContent);
 
   // Generate an HTML email with the provided contents
   const emailHtml = mailGenerator.generate(options.mailgenContent);
 
-  // Create a nodemailer transporter instance which is responsible to send a mail
-  const transporter = nodemailer.createTransport({
-    host: process.env.MAILTRAP_SMTP_HOST,
-    port: process.env.MAILTRAP_SMTP_PORT,
-    auth: {
-      user: process.env.MAILTRAP_SMTP_USER,
-      pass: process.env.MAILTRAP_SMTP_PASS,
-    },
-  });
-
-  const mail = {
-    from: "mail.freeapi@gmail.com", // We can name this anything. The mail will go to your Mailtrap inbox
-    to: options.email, // receiver's mail
-    subject: options.subject, // mail subject
-    text: emailTextual, // mailgen content textual variant
-    html: emailHtml, // mailgen content html variant
-  };
-
   try {
-    await transporter.sendMail(mail);
+    const { data, error } = await resend.emails.send({
+      from: "LMS ERP <onboarding@resend.dev>", // Default Resend test domain
+      to: options.email,
+      subject: options.subject,
+      text: emailTextual,
+      html: emailHtml,
+    });
+
+    if (error) {
+      logger.error("Resend Error: ", error);
+      return;
+    }
+
+    logger.info("Email sent successfully: ", data.id);
   } catch (error) {
-    // As sending email is not strongly coupled to the business logic it is not worth to raise an error when email sending fails
-    // So it's better to fail silently rather than breaking the app
-    logger.error(
-      "Email service failed silently. Make sure you have provided your MAILTRAP credentials in the .env file"
-    );
-    logger.error("Error: ", error);
+    logger.error("Email service failed. Error: ", error);
   }
 };
 
@@ -64,18 +56,18 @@ const emailVerificationMailgenContent = (username, verificationUrl) => {
   return {
     body: {
       name: username,
-      intro: "Welcome to our app! We're very excited to have you on board.",
+      intro: "Welcome to our LMS ERP platform! We're excited to have you on board.",
       action: {
         instructions:
-          "To verify your email please click on the following button:",
+          "To get started and secure your account, please verify your email address by clicking the button below:",
         button: {
-          color: "#22BC66", // Optional action button color
-          text: "Verify your email",
+          color: "#4F46E5", // Modern Indigo color
+          text: "Verify Account",
           link: verificationUrl,
         },
       },
       outro:
-        "Need help, or have questions? Just reply to this email, we'd love to help.",
+        "If you did not create an account, no further action is required. Need help? Reply to this email.",
     },
   };
 };
@@ -83,7 +75,7 @@ const emailVerificationMailgenContent = (username, verificationUrl) => {
 /**
  *
  * @param {string} username
- * @param {string} verificationUrl
+ * @param {string} passwordResetUrl
  * @returns {Mailgen.Content}
  * @description It designs the forgot password mail
  */
@@ -91,18 +83,18 @@ const forgotPasswordMailgenContent = (username, passwordResetUrl) => {
   return {
     body: {
       name: username,
-      intro: "We got a request to reset the password of our account",
+      intro: "We received a request to reset your password for your LMS ERP account.",
       action: {
         instructions:
-          "To reset your password click on the following button or link:",
+          "To reset your password, please click the button below. This link will expire shortly for security reasons.",
         button: {
-          color: "#22BC66", // Optional action button color
-          text: "Reset password",
+          color: "#DC2626", // Alert red color
+          text: "Reset Password",
           link: passwordResetUrl,
         },
       },
       outro:
-        "Need help, or have questions? Just reply to this email, we'd love to help.",
+        "If you did not request a password reset, please ignore this email or contact support if you have concerns about your account security.",
     },
   };
 };
@@ -110,7 +102,7 @@ const forgotPasswordMailgenContent = (username, passwordResetUrl) => {
 /**
  *
  * @param {string} username
- * @param {{_id: string, product: Product, quantity: number}[]} items
+ * @param {{_id: string, product: {name: string, price: number}, quantity: number}[]} items
  * @param {number} totalCost
  * @returns {Mailgen.Content}
  * @description It designs the order creation invoice mail
@@ -119,23 +111,22 @@ const orderConfirmationMailgenContent = (username, items, totalCost) => {
   return {
     body: {
       name: username,
-      intro: "Your order has been processed successfully.",
+      intro: "Your transaction has been processed successfully. Thank you for your payment!",
       table: {
         data: items?.map((item) => {
           return {
             item: item.product?.name,
-            price: "INR " + item.product?.price + "/-",
+            description: item.product?.description || "Fee Payment",
+            price: "₹ " + item.product?.price,
             quantity: item.quantity,
           };
         }),
         columns: {
-          // Optionally, customize the column widths
           customWidth: {
             item: "20%",
             price: "15%",
             quantity: "15%",
           },
-          // Optionally, change column text alignment
           customAlignment: {
             price: "right",
             quantity: "right",
@@ -143,9 +134,45 @@ const orderConfirmationMailgenContent = (username, items, totalCost) => {
         },
       },
       outro: [
-        `Total order cost: INR ${totalCost}/-`,
-        "You can check the status of your order and more in your order history",
+        `Total Amount: ₹ ${totalCost}`,
+        "You can view your full transaction history and download receipts from your dashboard.",
       ],
+    },
+  };
+};
+
+/**
+ *
+ * @param {string} username
+ * @param {string} leaveType
+ * @param {string} status
+ * @param {string} startDate
+ * @param {string} endDate
+ * @param {string} comment
+ * @returns {Mailgen.Content}
+ * @description It designs the leave status update mail
+ */
+const leaveStatusMailgenContent = (username, leaveType, status, startDate, endDate, comment) => {
+  const isApproved = status.toLowerCase() === "approved";
+  return {
+    body: {
+      name: username,
+      intro: `Your leave request for ${leaveType} (${startDate} to ${endDate}) has been ${status.toUpperCase()}.`,
+      dictionary: {
+        Status: status.toUpperCase(),
+        Type: leaveType,
+        Period: `${startDate} to ${endDate}`,
+        Remarks: comment || "No remarks provided.",
+      },
+      action: {
+        instructions: "You can view the details of your leave application on the portal:",
+        button: {
+          color: isApproved ? "#10B981" : "#EF4444",
+          text: "View Leave Details",
+          link: "https://lms-erp.com/dashboard/leaves",
+        },
+      },
+      outro: "If you have any questions, please contact the HR or Administrator.",
     },
   };
 };
@@ -155,4 +182,5 @@ export {
   emailVerificationMailgenContent,
   forgotPasswordMailgenContent,
   orderConfirmationMailgenContent,
+  leaveStatusMailgenContent,
 };

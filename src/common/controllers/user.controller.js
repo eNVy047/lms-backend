@@ -15,6 +15,7 @@ import {
   getStaticFilePath,
   removeLocalFile,
 } from "../utils/helpers.js";
+import { sendVerificationOTP } from "../utils/twilio.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -86,6 +87,14 @@ const registerUser = asyncHandler(async (req, res) => {
       `${req.protocol}://${req.get("host")}/api/v1/user/verify-email/${unHashedToken}`
     ),
   });
+
+  // ✅ Generate and send SMS OTP
+  const { otp, hashedOtp, otpExpiry } = user.generatePhoneOTP();
+  user.phoneVerificationToken = hashedOtp;
+  user.phoneVerificationExpiry = otpExpiry;
+  await user.save({ validateBeforeSave: false });
+
+  await sendVerificationOTP(`${user.phone.countryCode}${user.phone.number}`, otp);
 
   // ✅ Generate tokens for auto-login
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
@@ -408,6 +417,63 @@ const resendEmailVerification = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Mail has been sent to your mail ID"));
 });
 
+const verifyPhoneOTP = asyncHandler(async (req, res) => {
+  const { otp } = req.body;
+
+  if (!otp) {
+    throw new ApiError(400, "OTP is required");
+  }
+
+  // Generate a hash from the OTP that we are receiving
+  let hashedOtp = crypto
+    .createHash("sha256")
+    .update(otp)
+    .digest("hex");
+
+  const user = await User.findOne({
+    _id: req.user._id,
+    phoneVerificationToken: hashedOtp,
+    phoneVerificationExpiry: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new ApiError(400, "Invalid or expired OTP");
+  }
+
+  user.phoneVerificationToken = undefined;
+  user.phoneVerificationExpiry = undefined;
+  user.isPhoneVerified = true;
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { isPhoneVerified: true }, "Phone number verified successfully"));
+});
+
+const resendPhoneOTP = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user?._id);
+
+  if (!user) {
+    throw new ApiError(404, "User does not exist");
+  }
+
+  if (user.isPhoneVerified) {
+    throw new ApiError(400, "Phone number is already verified");
+  }
+
+  const { otp, hashedOtp, otpExpiry } = user.generatePhoneOTP();
+
+  user.phoneVerificationToken = hashedOtp;
+  user.phoneVerificationExpiry = otpExpiry;
+  await user.save({ validateBeforeSave: false });
+
+  await sendVerificationOTP(`${user.phone.countryCode}${user.phone.number}`, otp);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "OTP has been sent to your phone number"));
+});
+
 const handleSocialLogin = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user?._id);
 
@@ -560,8 +626,14 @@ const installApp = asyncHandler(async (req, res) => {
 const uninstallApp = asyncHandler(async (req, res) => {
   const { appKey } = req.body;
 
+  if (!appKey) throw new ApiError(400, "appKey is required");
+
   const user = await User.findById(req.user._id);
   if (!user) throw new ApiError(404, "User not found");
+
+  if (!user.installedApps.includes(appKey)) {
+    throw new ApiError(400, `${appKey} is not installed`);
+  }
 
   user.installedApps = user.installedApps.filter((key) => key !== appKey);
   await user.save();
@@ -588,5 +660,7 @@ export {
   updateUserAvatar,
   allInstalledApps,
   installApp,
-  uninstallApp
+  uninstallApp,
+  verifyPhoneOTP,
+  resendPhoneOTP,
 }

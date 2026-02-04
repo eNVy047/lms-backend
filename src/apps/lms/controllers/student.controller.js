@@ -325,16 +325,13 @@ const viewMarks = asyncHandler(async (req, res) => {
 
 const payFees = asyncHandler(async (req, res) => {
     const { studentId } = req.params;
-    const { feeId, amount, transactionId, paymentType } = req.body; // paymentType: FULL or INSTALLMENT
+    const { feeId, amount, transactionId, installmentNumber } = req.body;
 
     // Check fee record
     const fee = await Fees.findOne({ _id: feeId, student: studentId });
     if (!fee) throw new ApiError(404, "Fee record not found for this student");
 
     if (fee.isPaid) throw new ApiError(400, "Fee already paid");
-
-    // Logic delegates to Fees controller-like logic but implemented here as requested
-    // Ideally we should reuse the Fees controller function, but for direct endpoint compliance:
 
     if (fee.paymentType === "FULL") {
         fee.isPaid = true;
@@ -344,30 +341,30 @@ const payFees = asyncHandler(async (req, res) => {
         fee.transactionId = transactionId;
     } else {
         // Installment logic
-        // Need to know WHICH installment if type is installment, or auto-pay next pending?
-        // Let's assume paying earliest pending installment if no specific ID provided, 
-        // OR user must provide installmentNumber? 
-        // For simplicity and safety, let's just mark the fee as PAID if amount matches total pending? 
-        // Creating a simple wrapper for "Pay Request"
+        if (installmentNumber) {
+            const installment = fee.installments.find(
+                (inst) => inst.installmentNumber === parseInt(installmentNumber)
+            );
+            if (!installment) throw new ApiError(404, "Installment not found");
+            if (installment.status === "PAID") throw new ApiError(400, "Installment already paid");
 
-        // Detailed implementation would duplicate Fees controller code. 
-        // Let's just update Paid Amount and check status
-        fee.paidAmount += Number(amount);
-        fee.transactionId = transactionId; // Overwrites last txn id
-
-        // Recalculate status
-        if (fee.paidAmount >= fee.amount) {
-            fee.status = "PAID";
-            fee.isPaid = true;
+            installment.status = "PAID";
+            installment.paidDate = new Date();
+            installment.paidAmount = amount || installment.amount;
+            installment.transactionId = transactionId;
         } else {
-            fee.status = "PARTIAL";
+            // Fallback: simple increment (less precise than specific installment payment)
+            fee.paidAmount += Number(amount);
         }
 
-        // Also update installment status logic would be needed here for consistency...
-        // Recommendation: Use Fees Controller Endpoints. 
+        // Use model method to recalculate overall status
+        fee.updatePaymentStatus();
+        fee.transactionId = transactionId; // Track latest transaction
     }
 
+    fee.updatedBy = req.user._id;
     await fee.save();
+
     return res.status(200).json(new ApiResponse(200, fee, "Fee payment processed"));
 });
 

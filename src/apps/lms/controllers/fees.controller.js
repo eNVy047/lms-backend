@@ -4,6 +4,7 @@ import { Courses } from "../models/courses.models.js";
 import { ApiError } from "../../../common/utils/ApiError.js";
 import { ApiResponse } from "../../../common/utils/ApiResponse.js";
 import { asyncHandler } from "../../../common/utils/asyncHandler.js";
+import { orderConfirmationMailgenContent, sendEmail } from "../../../common/utils/mail.js";
 
 /**
  * Create a new fee record (Admin only)
@@ -162,6 +163,24 @@ const processFullPayment = asyncHandler(async (req, res) => {
         .populate("student", "fullName email enrollmentNumber")
         .populate("course", "name courseCode");
 
+    // Send email notification
+    await sendEmail({
+        email: populatedFee.student.email,
+        subject: "Fee Payment Confirmation",
+        mailgenContent: orderConfirmationMailgenContent(
+            populatedFee.student.fullName,
+            [{
+                product: {
+                    name: `${populatedFee.course.name} - ${populatedFee.semester} Semester`,
+                    description: populatedFee.description || "Course Fee Payment",
+                    price: populatedFee.amount
+                },
+                quantity: 1
+            }],
+            populatedFee.amount
+        )
+    });
+
     return res.status(200).json(new ApiResponse(200, populatedFee, "Payment processed successfully"));
 });
 
@@ -209,6 +228,24 @@ const processInstallmentPayment = asyncHandler(async (req, res) => {
     const populatedFee = await Fees.findById(fee._id)
         .populate("student", "fullName email enrollmentNumber")
         .populate("course", "name courseCode");
+
+    // Send email notification for installment
+    await sendEmail({
+        email: populatedFee.student.email,
+        subject: `Installment Payment Confirmed - ${installmentNumber}`,
+        mailgenContent: orderConfirmationMailgenContent(
+            populatedFee.student.fullName,
+            [{
+                product: {
+                    name: `Installment ${installmentNumber} - ${populatedFee.course.name}`,
+                    description: `Payment for installment ${installmentNumber}`,
+                    price: paidAmount || installment.amount
+                },
+                quantity: 1
+            }],
+            paidAmount || installment.amount
+        )
+    });
 
     return res
         .status(200)

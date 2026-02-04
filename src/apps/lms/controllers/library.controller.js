@@ -76,11 +76,17 @@ const returnAsset = asyncHandler(async (req, res) => {
     if (!transaction) throw new ApiError(404, "Transaction not found");
     if (transaction.status === "RETURNED") throw new ApiError(400, "Already returned");
 
-    // Calculate fine logic could be here (mocked for now)
-    // if (new Date() > transaction.dueDate) ...
+    // Calculate fine: 10 per day overdue
+    let fineAmount = 0;
+    if (new Date() > transaction.dueDate) {
+        const diffTime = Math.abs(new Date() - transaction.dueDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        fineAmount = diffDays * 10;
+    }
 
     transaction.status = "RETURNED";
     transaction.returnDate = new Date();
+    transaction.fineAmount = fineAmount;
     if (finePaid) transaction.finePaid = finePaid;
 
     await transaction.save();

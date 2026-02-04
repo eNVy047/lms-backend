@@ -1,8 +1,10 @@
 import { InstitutionSetup } from "../models/institutionSetup.models.js";
 import { Institution } from "../models/institution.models.js";
+import { User } from "../../../common/models/user.models.js";
 import { ApiError } from "../../../common/utils/ApiError.js";
 import { ApiResponse } from "../../../common/utils/ApiResponse.js";
 import { asyncHandler } from "../../../common/utils/asyncHandler.js";
+import { sendVerificationOTP } from "../../../common/utils/twilio.js";
 
 const createInstitutionSetup = asyncHandler(async (req, res) => {
     const {
@@ -118,13 +120,29 @@ const registerAddress = asyncHandler(async (req, res) => {
 const verifyContact = asyncHandler(async (req, res) => {
     const { email, phone } = req.body;
 
-    if (!email || !phone) {
-        throw new ApiError(400, "Email and phone are required");
+    if (!email || !phone || !phone.countryCode || !phone.number) {
+        throw new ApiError(400, "Email and complete phone details (countryCode and number) are required");
     }
 
-    // Mock verification - in a real app, send OTP
+    const user = await User.findById(req.user._id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    // Update user's contact info temporarily for verification if needed, 
+    // or just let the generic verify-otp endpoint handle the validation.
+    // Here we trigger the OTP send.
+    const { otp, hashedOtp, otpExpiry } = user.generatePhoneOTP();
+    user.phoneVerificationToken = hashedOtp;
+    user.phoneVerificationExpiry = otpExpiry;
+    user.phone = phone; // Tentatively update phone
+    user.email = email; // Tentatively update email
+    await user.save({ validateBeforeSave: false });
+
+    await sendVerificationOTP(`${phone.countryCode}${phone.number}`, otp);
+
     return res.status(200).json(
-        new ApiResponse(200, { email, phone, verified: true }, "Contact details verified successfully")
+        new ApiResponse(200, { email, phone, otpSent: true }, "OTP sent to your phone number for verification")
     );
 });
 

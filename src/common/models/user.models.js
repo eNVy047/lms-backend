@@ -8,7 +8,8 @@ import {
   USER_TEMPORARY_TOKEN_EXPIRY,
   UserLoginType,
   UserRolesEnum,
-  AvailableAppsEnum
+  AvailableAppsEnum,
+  OTP_EXPIRY
 } from "../../constants.js";
 
 const userSchema = new Schema(
@@ -74,6 +75,10 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    isPhoneVerified: {
+      type: Boolean,
+      default: false,
+    },
     refreshToken: {
       type: String,
     },
@@ -89,6 +94,12 @@ const userSchema = new Schema(
     emailVerificationExpiry: {
       type: Date,
     },
+    phoneVerificationToken: {
+      type: String,
+    },
+    phoneVerificationExpiry: {
+      type: Date,
+    },
   },
   {
     timestamps: true
@@ -100,7 +111,6 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
-
 
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
@@ -142,10 +152,29 @@ userSchema.methods.generateTemporaryToken = function () {
     .createHash("sha256")
     .update(unHashedToken)
     .digest("hex");
-  // This is the expiry time for the token (20 minutes)
+  // This is the expiry time for the token (10 minutes)
   const tokenExpiry = Date.now() + USER_TEMPORARY_TOKEN_EXPIRY;
 
   return { unHashedToken, hashedToken, tokenExpiry };
+};
+
+/**
+ * @description Method responsible for generating numeric OTP for phone verification
+ */
+userSchema.methods.generatePhoneOTP = function () {
+  // Generate a random 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  // Hash the OTP to store in DB
+  const hashedOtp = crypto
+    .createHash("sha256")
+    .update(otp)
+    .digest("hex");
+
+  // OTP expiry (10 minutes)
+  const otpExpiry = Date.now() + OTP_EXPIRY;
+
+  return { otp, hashedOtp, otpExpiry };
 };
 
 export const User = mongoose.model("User", userSchema)

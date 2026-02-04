@@ -24,6 +24,16 @@ import * as libraryController from "./library.controller.js";
 import * as transportController from "./transport.controller.js";
 import * as scholarshipController from "./scholarship.controller.js";
 import * as payrollController from "./payroll.controller.js";
+import * as sectionController from "./section.controller.js";
+import * as inventoryController from "./inventory.controller.js";
+import * as timetableController from "./timetable.controller.js";
+import * as settingsController from "./settings.controller.js";
+import * as timetableSettingsController from "./timetableSettings.controller.js";
+import * as attendanceRuleController from "./attendanceRule.controller.js";
+import * as hostelController from "./hostel.controller.js";
+import * as visitorController from "./visitor.controller.js";
+import * as leaveController from "./leave.controller.js";
+import * as specializationController from "./specialization.controller.js";
 
 export {
     institutionController,
@@ -51,5 +61,15 @@ export {
     libraryController,
     transportController,
     scholarshipController,
-    payrollController
+    payrollController,
+    sectionController,
+    inventoryController,
+    timetableController,
+    settingsController,
+    timetableSettingsController,
+    attendanceRuleController,
+    hostelController,
+    visitorController,
+    leaveController,
+    specializationController
 };

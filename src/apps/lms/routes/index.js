@@ -26,6 +26,15 @@ import transportRoutes from "./transport.routes.js";
 import scholarshipRoutes from "./scholarship.routes.js";
 import payrollRoutes from "./payroll.routes.js";
 import specializationRoutes from "./specialization.routes.js";
+import sectionRoutes from "./section.routes.js";
+import inventoryRoutes from "./inventory.routes.js";
+import timetableRoutes from "./timetable.routes.js";
+import settingsRoutes from "./settings.routes.js";
+import timetableSettingsRoutes from "./timetableSettings.routes.js";
+import attendanceRuleRoutes from "./attendanceRule.routes.js";
+import hostelRoutes from "./hostel.routes.js";
+import visitorRoutes from "./visitor.routes.js";
+import leaveRoutes from "./leave.routes.js";
 
 const router = Router();
 
@@ -65,5 +74,14 @@ router.use("/library", libraryRoutes);
 router.use("/transport", transportRoutes);
 router.use("/scholarship", scholarshipRoutes);
 router.use("/payroll", payrollRoutes);
+router.use("/sections", sectionRoutes);
+router.use("/inventory", inventoryRoutes);
+router.use("/timetable", timetableRoutes);
+router.use("/settings", settingsRoutes);
+router.use("/timetable-settings", timetableSettingsRoutes);
+router.use("/attendance-rules", attendanceRuleRoutes);
+router.use("/hostel", hostelRoutes);
+router.use("/visitor", visitorRoutes);
+router.use("/leave", leaveRoutes);
 
 export default router;
